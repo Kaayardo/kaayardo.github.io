@@ -43,7 +43,6 @@
             border-radius: 5px;
         }
         #next-button {
-            display: none;
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
@@ -98,11 +97,12 @@
         function typeWriter(text, index = 0) {
             if (index < text.length && !isQuickReading) {
                 textContainer.innerHTML += text.charAt(index);
+                typeSound.currentTime = 0;
                 typeSound.play();
                 setTimeout(() => typeWriter(text, index + 1), typingSpeed);
             } else {
                 isTyping = false;
-                nextButton.style.display = 'block';
+                nextButton.disabled = false;
                 if (isQuickReading) {
                     textContainer.innerHTML = text;
                 }
@@ -110,8 +110,9 @@
         }
 
         function displayNextLine() {
-            if (currentLine < script.length && !isTyping) {
+            if (currentLine < script.length) {
                 isTyping = true;
+                nextButton.disabled = true;
                 const currentItem = script[currentLine];
                 
                 if (currentItem.type === "chapter") {
@@ -119,40 +120,40 @@
                     locationContainer.textContent = "";
                     nameContainer.textContent = "";
                     textContainer.innerHTML = "";
+                    isTyping = false;
+                    nextButton.disabled = false;
                 } else if (currentItem.type === "location") {
                     locationContainer.textContent = currentItem.text;
                     nameContainer.textContent = "";
                     textContainer.innerHTML = "";
+                    isTyping = false;
+                    nextButton.disabled = false;
                 } else {
                     nameContainer.textContent = currentItem.name;
                     textContainer.innerHTML = '';
                     typeWriter(currentItem.text);
                 }
                 
-                nextButton.style.display = 'none';
                 currentLine++;
-            } else if (currentLine >= script.length) {
+            } else {
                 chapterContainer.textContent = '';
                 locationContainer.textContent = '';
                 nameContainer.textContent = '';
                 textContainer.textContent = "End of demo. Thank you for playing!";
-                nextButton.style.display = 'none';
+                nextButton.disabled = true;
             }
         }
 
         nextButton.addEventListener('click', displayNextLine);
-        gameContainer.addEventListener('click', (e) => {
-            if (e.target !== nextButton) {
-                displayNextLine();
-            }
-        });
 
         gameContainer.addEventListener('dblclick', () => {
-            isQuickReading = true;
-            while (currentLine < script.length) {
-                displayNextLine();
+            if (!isQuickReading) {
+                isQuickReading = true;
+                while (currentLine < script.length) {
+                    displayNextLine();
+                }
+                isQuickReading = false;
             }
-            isQuickReading = false;
         });
 
         // Display the first line immediately
