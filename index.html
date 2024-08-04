@@ -66,6 +66,7 @@
         const nameContainer = document.getElementById('name-container');
         const textContainer = document.getElementById('text-container');
         const nextButton = document.getElementById('next-button');
+        const gameContainer = document.getElementById('game-container');
 
         const script = [
             { type: "chapter", text: "Prologue" },
@@ -86,6 +87,28 @@
         ];
 
         let currentLine = 0;
+        let isTyping = false;
+        let typingInterval;
+
+        function typeWriter(text, index = 0) {
+            if (index < text.length) {
+                textContainer.textContent += text.charAt(index);
+                typingInterval = setTimeout(() => typeWriter(text, index + 1), 30);
+            } else {
+                isTyping = false;
+                nextButton.disabled = false;
+            }
+        }
+
+        function displayFullText() {
+            clearTimeout(typingInterval);
+            const currentItem = script[currentLine - 1];
+            if (currentItem && currentItem.text) {
+                textContainer.textContent = currentItem.text;
+            }
+            isTyping = false;
+            nextButton.disabled = false;
+        }
 
         function displayNextLine() {
             if (currentLine < script.length) {
@@ -102,7 +125,10 @@
                     textContainer.textContent = "";
                 } else {
                     nameContainer.textContent = currentItem.name;
-                    textContainer.textContent = currentItem.text;
+                    textContainer.textContent = "";
+                    isTyping = true;
+                    nextButton.disabled = true;
+                    typeWriter(currentItem.text);
                 }
                 
                 currentLine++;
@@ -115,7 +141,15 @@
             }
         }
 
-        nextButton.addEventListener('click', displayNextLine);
+        nextButton.addEventListener('click', () => {
+            if (!isTyping) {
+                displayNextLine();
+            } else {
+                displayFullText();
+            }
+        });
+
+        gameContainer.addEventListener('dblclick', displayFullText);
 
         // Display the first line immediately
         displayNextLine();
