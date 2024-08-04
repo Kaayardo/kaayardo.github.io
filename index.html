@@ -31,7 +31,6 @@
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 10px;
-            min-height: 30px;
         }
         #text-container {
             min-height: 150px;
@@ -67,7 +66,6 @@
         const nameContainer = document.getElementById('name-container');
         const textContainer = document.getElementById('text-container');
         const nextButton = document.getElementById('next-button');
-        const gameContainer = document.getElementById('game-container');
 
         const script = [
             { type: "chapter", text: "Prologue" },
@@ -88,50 +86,23 @@
         ];
 
         let currentLine = 0;
-        let isTyping = false;
-        let typingSpeed = 30; // milliseconds per character
-        let isQuickReading = false;
-
-        const typeSound = new Audio('data:audio/wav;base64,UklGRnQGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YU8GAACAvwIA3r8BAHgAAAB4vwEA3j8CAH6/AQB0AAAA3j8CAIi/AQB6AAAAeL8BANw/AgCCvwEAdgAAAHa/AQDaPwIAhr8BAHgAAAB2vwEA2D8CAIy/AQB8AAAAfL8BANg/AgCQvwEAfgAAAIC/AQDYPwIAkr8BAIAAAAB+vwEA1j8CAJa/AQCCAAAAgr8BANw/AgCUvwEAgAAAAHq/AQDaPwIAmL8BAIAAAAB6vwEA3D8CAJ6/AQCEAAAAfr8BAN4/AgCivwEAhAAAAH6/AQDePwIAoL8BAIIAAACAv');
-
-        function typeWriter(text, index = 0) {
-            if (index < text.length && !isQuickReading) {
-                textContainer.innerHTML += text.charAt(index);
-                typeSound.currentTime = 0;
-                typeSound.play();
-                setTimeout(() => typeWriter(text, index + 1), typingSpeed);
-            } else {
-                isTyping = false;
-                nextButton.disabled = false;
-                if (isQuickReading) {
-                    textContainer.innerHTML = text;
-                }
-            }
-        }
 
         function displayNextLine() {
             if (currentLine < script.length) {
-                isTyping = true;
-                nextButton.disabled = true;
                 const currentItem = script[currentLine];
                 
                 if (currentItem.type === "chapter") {
                     chapterContainer.textContent = currentItem.text;
                     locationContainer.textContent = "";
                     nameContainer.textContent = "";
-                    textContainer.innerHTML = "";
-                    isTyping = false;
-                    nextButton.disabled = false;
+                    textContainer.textContent = "";
                 } else if (currentItem.type === "location") {
                     locationContainer.textContent = currentItem.text;
                     nameContainer.textContent = "";
-                    textContainer.innerHTML = "";
-                    isTyping = false;
-                    nextButton.disabled = false;
+                    textContainer.textContent = "";
                 } else {
                     nameContainer.textContent = currentItem.name;
-                    textContainer.innerHTML = '';
-                    typeWriter(currentItem.text);
+                    textContainer.textContent = currentItem.text;
                 }
                 
                 currentLine++;
@@ -145,16 +116,6 @@
         }
 
         nextButton.addEventListener('click', displayNextLine);
-
-        gameContainer.addEventListener('dblclick', () => {
-            if (!isQuickReading) {
-                isQuickReading = true;
-                while (currentLine < script.length) {
-                    displayNextLine();
-                }
-                isQuickReading = false;
-            }
-        });
 
         // Display the first line immediately
         displayNextLine();
