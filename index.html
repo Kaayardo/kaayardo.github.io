@@ -52,7 +52,7 @@
         <div id="text-container"></div>
     </div>
 
-   <script>
+    <script>
     const chapterContainer = document.getElementById('chapter-container');
     const locationContainer = document.getElementById('location-container');
     const nameContainer = document.getElementById('name-container');
@@ -66,81 +66,78 @@
         { name: "A voice", text: "It's not that bad." },
         { name: "A voice", text: "You know what? It is actually quite cute." },
         { name: "A voice", text: "I almost envy you." },
-        // ... (rest of the script remains the same)
+        // ... (rest of the script)
     ];
 
     let currentLine = 0;
     let isTyping = false;
     let typingSpeed = 30; // milliseconds per character
 
-    // Typewriter sound setup
-    const typewriterSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2442/2442-preview.mp3');
-    typewriterSound.volume = 0.2;
+    // Main game logic will go here
 
-    function playTypewriterSound() {
-        typewriterSound.currentTime = 0;
-        typewriterSound.play();
-    }
-
-    function typeWriter(text, index = 0) {
+    </script>
+</body>
+</html>
+function displayText(text) {
+    let index = 0;
+    isTyping = true;
+    
+    function addNextChar() {
         if (index < text.length && isTyping) {
-            textContainer.textContent += text.charAt(index);
-            if (text.charAt(index) !== ' ') {
-                playTypewriterSound();
-            }
-            setTimeout(() => typeWriter(text, index + 1), typingSpeed);
+            textContainer.textContent += text[index];
+            index++;
+            setTimeout(addNextChar, typingSpeed);
         } else {
             isTyping = false;
         }
     }
+    
+    addNextChar();
+}
 
-    function displayFullText() {
-        isTyping = false;
-        const currentItem = script[currentLine - 1];
-        if (currentItem && currentItem.text) {
-            textContainer.textContent = currentItem.text;
-        }
+function displayFullText() {
+    isTyping = false;
+    const currentItem = script[currentLine - 1];
+    if (currentItem && currentItem.text) {
+        textContainer.textContent = currentItem.text;
     }
+}
 
-    function displayNextLine() {
-        if (currentLine < script.length) {
-            const currentItem = script[currentLine];
-            
-            if (currentItem.type === "chapter") {
-                chapterContainer.textContent = currentItem.text;
-                locationContainer.textContent = "";
-                nameContainer.textContent = "";
-                textContainer.textContent = "";
-            } else if (currentItem.type === "location") {
-                locationContainer.textContent = currentItem.text;
-                nameContainer.textContent = "";
-                textContainer.textContent = "";
-            } else {
-                nameContainer.textContent = currentItem.name;
-                textContainer.textContent = "";
-                isTyping = true;
-                typeWriter(currentItem.text);
-            }
-            
-            currentLine++;
+function displayNextLine() {
+    if (currentLine < script.length) {
+        const currentItem = script[currentLine];
+        
+        if (currentItem.type === "chapter") {
+            chapterContainer.textContent = currentItem.text;
+            locationContainer.textContent = "";
+            nameContainer.textContent = "";
+            textContainer.textContent = "";
+        } else if (currentItem.type === "location") {
+            locationContainer.textContent = currentItem.text;
+            nameContainer.textContent = "";
+            textContainer.textContent = "";
         } else {
-            chapterContainer.textContent = '';
-            locationContainer.textContent = '';
-            nameContainer.textContent = '';
-            textContainer.textContent = "End of demo. Thank you for playing!";
+            nameContainer.textContent = currentItem.name;
+            textContainer.textContent = "";
+            displayText(currentItem.text);
         }
+        
+        currentLine++;
+    } else {
+        chapterContainer.textContent = '';
+        locationContainer.textContent = '';
+        nameContainer.textContent = '';
+        textContainer.textContent = "End of demo. Thank you for playing!";
     }
+}
 
-    textContainer.addEventListener('click', () => {
-        if (isTyping) {
-            displayFullText();
-        } else {
-            displayNextLine();
-        }
-    });
+textContainer.addEventListener('click', () => {
+    if (isTyping) {
+        displayFullText();
+    } else {
+        displayNextLine();
+    }
+});
 
-    // Display the first line immediately
-    displayNextLine();
-</script>
-</body>
-</html>
+// Start the game
+displayNextLine();
