@@ -6,7 +6,7 @@
     <title>Visual Novel Demo</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,31 +22,32 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        #chapter-container, #location-container {
-            font-size: 18px;
+        #chapter-container {
+            font-size: 24px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            color: #4a4a4a;
+        }
+        #location-container {
+            font-size: 18px;
+            font-style: italic;
+            margin-bottom: 15px;
+            color: #6a6a6a;
         }
         #name-container {
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 10px;
+            color: #2a2a2a;
         }
         #text-container {
             min-height: 150px;
             font-size: 18px;
             line-height: 1.6;
             margin-bottom: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
+            padding: 15px;
             border-radius: 5px;
-        }
-        #next-button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
+            background-color: #f9f9f9;
             cursor: pointer;
         }
     </style>
@@ -57,68 +58,7 @@
         <div id="location-container"></div>
         <div id="name-container"></div>
         <div id="text-container"></div>
-        <button id="next-button">Next</button>
     </div>
-
-    <script>
-        const chapterContainer = document.getElementById('chapter-container');
-        const locationContainer = document.getElementById('location-container');
-        const nameContainer = document.getElementById('name-container');
-        const textContainer = document.getElementById('text-container');
-        const nextButton = document.getElementById('next-button');
-
-        const script = [
-            { type: "chapter", text: "Prologue" },
-            { type: "location", text: "February 13th, 2045; 12:30 - A weird room" },
-            { name: "", text: "A series of pods are organized in different rows and columns. Stairs like the ones that are used in large public libraries are used to reach the pods. At the centre of the colossal structure, we see a glass ceiling." },
-            { name: "", text: "My eyes suddenly open as I hear a voice with a peculiar cadence" },
-            { name: "A voice", text: "It's not that bad." },
-            { name: "A voice", text: "You know what? It is actually quite cute." },
-            { name: "A voice", text: "I almost envy you." },
-            { name: "", text: "A Character appears at the centre of the screen. He appears cheerful in a way that contrasts strikingly with the gothic environment. He points at the high ceiling, which appears to be at least a whopping thirty metres in height." },
-            { name: "???", text: "At least you have high ceilings." },
-            { name: "???", text: "It's a shame though. They could have made a couple of floors more. Or a penthouse." },
-            { name: "???", text: "Oooh, at least some kind of a loft situation." },
-            { name: "???", text: "Instead, they just chose to put as many beds as possible. *sigh*." },
-            { name: "???", text: "Aesthetics are defaced on a daily basis in this city." },
-            { name: "???", text: "*grins* But you have more chances to make friends though!" },
-            // ... (rest of the script)
-        ];
-
-        let currentLine = 0;
-
-        function displayNextLine() {
-            if (currentLine < script.length) {
-                const currentItem = script[currentLine];
-                
-                if (currentItem.type === "chapter") {
-                    chapterContainer.textContent = currentItem.text;
-                    locationContainer.textContent = "";
-                    nameContainer.textContent = "";
-                    textContainer.textContent = "";
-                } else if (currentItem.type === "location") {
-                    locationContainer.textContent = currentItem.text;
-                    nameContainer.textContent = "";
-                    textContainer.textContent = "";
-                } else {
-                    nameContainer.textContent = currentItem.name;
-                    textContainer.textContent = currentItem.text;
-                }
-                
-                currentLine++;
-            } else {
-                chapterContainer.textContent = '';
-                locationContainer.textContent = '';
-                nameContainer.textContent = '';
-                textContainer.textContent = "End of demo. Thank you for playing!";
-                nextButton.disabled = true;
-            }
-        }
-
-        nextButton.addEventListener('click', displayNextLine);
-
-        // Display the first line immediately
-        displayNextLine();
-    </script>
+    <script src="game.js"></script>
 </body>
 </html>
