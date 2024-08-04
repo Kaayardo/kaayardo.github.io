@@ -22,6 +22,11 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+        #chapter-container, #location-container {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
         #name-container {
             font-size: 20px;
             font-weight: bold;
@@ -50,75 +55,85 @@
 </head>
 <body>
     <div id="game-container">
+        <div id="chapter-container"></div>
+        <div id="location-container"></div>
         <div id="name-container"></div>
         <div id="text-container"></div>
         <button id="next-button">Next</button>
     </div>
 
     <script>
+        const chapterContainer = document.getElementById('chapter-container');
+        const locationContainer = document.getElementById('location-container');
         const nameContainer = document.getElementById('name-container');
         const textContainer = document.getElementById('text-container');
         const nextButton = document.getElementById('next-button');
         const gameContainer = document.getElementById('game-container');
 
         const script = [
-            { name: "", text: "CHAPTER 1" },
-            { name: "", text: "[February 13th, 2045; 12:30) Location: A weird room" },
-            { name: "", text: "[A series of pods are organized in different rows and columns. Stairs like the ones that are used in large public libraries are used to reach the pods. At the centre of the colossal structure, we see a glass" },
+            { type: "chapter", text: "Prologue" },
+            { type: "location", text: "February 13th, 2045; 12:30 - A weird room" },
+            { name: "", text: "A series of pods are organized in different rows and columns. Stairs like the ones that are used in large public libraries are used to reach the pods. At the centre of the colossal structure, we see a glass ceiling." },
             { name: "", text: "My eyes suddenly open as I hear a voice with a peculiar cadence" },
-            { name: "A voice", text: "It's not that bad. You know what? It is actually quite cute. I almost envy you." },
+            { name: "A voice", text: "It's not that bad." },
+            { name: "A voice", text: "You know what? It is actually quite cute." },
+            { name: "A voice", text: "I almost envy you." },
             { name: "", text: "A Character appears at the centre of the screen. He appears cheerful in a way that contrasts strikingly with the gothic environment. He points at the high ceiling, which appears to be at least a whopping thirty metres in height." },
-            { name: "???", text: "At least you have high ceilings. It's a shame though. They could have made a couple of floors more. Or a penthouse. Oooh, at least some kind of a loft situation. Instead, they just chose to put as many beds as possible. *sigh*. Aesthetics are defaced on a daily basis in this city. *grins* But you have more chances to make friends though!" },
-            { name: "", text: "I look through the glass ceilings, which should be a pain to clean. A wave of anger rushes through my veins." },
-            { name: "Protagonist", text: "Thank you for dropping me off, really. Thank you for helping me with the room payments. And thank you, because your arrogant behaviour made it unbearable for me to live with you and keep my room." },
-            { name: "", text: "He wraps his arms around me and pouts:" },
-            { name: "???", text: "Please, don't push me away. I apologise if my existence is just too much for you to handle." },
-            { name: "", text: "The plan to push my former roommate, Victor, away from me backfired as usual." },
-            { name: "", text: "…" },
-            { name: "", text: "I take a deep breath. If you forget to breathe, and don't take his remarks with a grain of, no, with a JAR of salt, you may end up committing heinous acts. I need to remind myself of that." },
-            { name: "", text: "I hug him back." },
-            { name: "", text: "He is back to all smiles." },
-            { name: "Victor", text: "But in all seriousness, sorry if I was too much to handle for you * playful wink*." },
-            { name: "", text: "I look outside my stained-coloured window. Berlin looks particularly beautiful through stained glass." },
-            { name: "Protagonist", text: "I needed you more as a roommate than as a friend. I am still very broke, The only reason I could live in that lavish, expensive apartment of yours is because of your income." },
-            { name: "", text: "I shrug as I continue." },
-            { name: "Protagonist", text: "Now it's the hostel life that awaits me. And I hate to say it, but it is your fault in a way." },
-            { name: "Victor", text: "Please don't start again, I already feel too guilty as it is. If you need anything, room payments, food, any other form of amenity or help, just call me, okay? You can also find me at my usual hangout spot. You remember where that is, right?" },
-            { name: "", text: "I nod." },
-            { name: "Protagonist", text: "You mean the weird, disgustingly cringy city beach, right? How can you even spend all the time in THAT place?" },
-            { name: "", text: "He shrugs, and whispers like a seasoned poet." },
-            { name: "Victor", text: "I was born next to a beach, you see. I'm very fond of city beaches now. It is a very recently acquired taste. Oh, look at the time. I gotta go! Goodbye and… sorry again you couldn't contain my joie de vivre." },
-            { name: "", text: "As Victor flees in a surprising hurry, he leaves a giant stack of cash for me on the cupboard. He probably doesn't even realize how inappropriate THAT looks. I am almost tempted to be offended, if I didn't really need some. Should I give this money back or use it? I hate to take it, but as a Finally serious Freelancer, I cannot really afford to pass on freebies, no matter who hands them or how they are handed…" },
-            { name: "", text: "[Choice 1: What do you do with the money?]" },
-            { name: "", text: "A) Take it begrudgingly" },
-            { name: "", text: "B) Try to run behind Victor and give it back immediately." },
-            { name: "", text: "C) Leave it there for now." },
+            { name: "???", text: "At least you have high ceilings." },
+            { name: "???", text: "It's a shame though. They could have made a couple of floors more. Or a penthouse." },
+            { name: "???", text: "Oooh, at least some kind of a loft situation." },
+            { name: "???", text: "Instead, they just chose to put as many beds as possible. *sigh*." },
+            { name: "???", text: "Aesthetics are defaced on a daily basis in this city." },
+            { name: "???", text: "*grins* But you have more chances to make friends though!" },
             // ... (rest of the script)
         ];
 
         let currentLine = 0;
         let isTyping = false;
         let typingSpeed = 30; // milliseconds per character
+        let isQuickReading = false;
+
+        const typeSound = new Audio('data:audio/wav;base64,UklGRnQGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YU8GAACAvwIA3r8BAHgAAAB4vwEA3j8CAH6/AQB0AAAA3j8CAIi/AQB6AAAAeL8BANw/AgCCvwEAdgAAAHa/AQDaPwIAhr8BAHgAAAB2vwEA2D8CAIy/AQB8AAAAfL8BANg/AgCQvwEAfgAAAIC/AQDYPwIAkr8BAIAAAAB+vwEA1j8CAJa/AQCCAAAAgr8BANw/AgCUvwEAgAAAAHq/AQDaPwIAmL8BAIAAAAB6vwEA3D8CAJ6/AQCEAAAAfr8BAN4/AgCivwEAhAAAAH6/AQDePwIAoL8BAIIAAACAv');
 
         function typeWriter(text, index = 0) {
-            if (index < text.length) {
+            if (index < text.length && !isQuickReading) {
                 textContainer.innerHTML += text.charAt(index);
+                typeSound.play();
                 setTimeout(() => typeWriter(text, index + 1), typingSpeed);
             } else {
                 isTyping = false;
                 nextButton.style.display = 'block';
+                if (isQuickReading) {
+                    textContainer.innerHTML = text;
+                }
             }
         }
 
         function displayNextLine() {
             if (currentLine < script.length && !isTyping) {
                 isTyping = true;
-                nameContainer.textContent = script[currentLine].name;
-                textContainer.innerHTML = '';
+                const currentItem = script[currentLine];
+                
+                if (currentItem.type === "chapter") {
+                    chapterContainer.textContent = currentItem.text;
+                    locationContainer.textContent = "";
+                    nameContainer.textContent = "";
+                    textContainer.innerHTML = "";
+                } else if (currentItem.type === "location") {
+                    locationContainer.textContent = currentItem.text;
+                    nameContainer.textContent = "";
+                    textContainer.innerHTML = "";
+                } else {
+                    nameContainer.textContent = currentItem.name;
+                    textContainer.innerHTML = '';
+                    typeWriter(currentItem.text);
+                }
+                
                 nextButton.style.display = 'none';
-                typeWriter(script[currentLine].text);
                 currentLine++;
             } else if (currentLine >= script.length) {
+                chapterContainer.textContent = '';
+                locationContainer.textContent = '';
                 nameContainer.textContent = '';
                 textContainer.textContent = "End of demo. Thank you for playing!";
                 nextButton.style.display = 'none';
@@ -130,6 +145,14 @@
             if (e.target !== nextButton) {
                 displayNextLine();
             }
+        });
+
+        gameContainer.addEventListener('dblclick', () => {
+            isQuickReading = true;
+            while (currentLine < script.length) {
+                displayNextLine();
+            }
+            isQuickReading = false;
         });
 
         // Display the first line immediately
