@@ -40,13 +40,6 @@
             border: 1px solid #ccc;
             padding: 10px;
             border-radius: 5px;
-        }
-        #next-button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
             cursor: pointer;
         }
     </style>
@@ -57,7 +50,6 @@
         <div id="location-container"></div>
         <div id="name-container"></div>
         <div id="text-container"></div>
-        <button id="next-button">Next</button>
     </div>
 
     <script>
@@ -65,7 +57,6 @@
         const locationContainer = document.getElementById('location-container');
         const nameContainer = document.getElementById('name-container');
         const textContainer = document.getElementById('text-container');
-        const nextButton = document.getElementById('next-button');
         const gameContainer = document.getElementById('game-container');
 
         const script = [
@@ -88,26 +79,25 @@
 
         let currentLine = 0;
         let isTyping = false;
-        let typingInterval;
+        let typingSpeed = 30; // milliseconds per character
 
         function typeWriter(text, index = 0) {
             if (index < text.length) {
-                textContainer.textContent += text.charAt(index);
-                typingInterval = setTimeout(() => typeWriter(text, index + 1), 30);
+                textContainer.innerHTML += text.charAt(index);
+                setTimeout(() => typeWriter(text, index + 1), typingSpeed);
             } else {
                 isTyping = false;
-                nextButton.disabled = false;
             }
         }
 
         function displayFullText() {
-            clearTimeout(typingInterval);
-            const currentItem = script[currentLine - 1];
-            if (currentItem && currentItem.text) {
-                textContainer.textContent = currentItem.text;
+            if (isTyping) {
+                isTyping = false;
+                const currentItem = script[currentLine - 1];
+                if (currentItem && currentItem.text) {
+                    textContainer.innerHTML = currentItem.text;
+                }
             }
-            isTyping = false;
-            nextButton.disabled = false;
         }
 
         function displayNextLine() {
@@ -118,16 +108,15 @@
                     chapterContainer.textContent = currentItem.text;
                     locationContainer.textContent = "";
                     nameContainer.textContent = "";
-                    textContainer.textContent = "";
+                    textContainer.innerHTML = "";
                 } else if (currentItem.type === "location") {
                     locationContainer.textContent = currentItem.text;
                     nameContainer.textContent = "";
-                    textContainer.textContent = "";
+                    textContainer.innerHTML = "";
                 } else {
                     nameContainer.textContent = currentItem.name;
-                    textContainer.textContent = "";
+                    textContainer.innerHTML = "";
                     isTyping = true;
-                    nextButton.disabled = true;
                     typeWriter(currentItem.text);
                 }
                 
@@ -136,16 +125,15 @@
                 chapterContainer.textContent = '';
                 locationContainer.textContent = '';
                 nameContainer.textContent = '';
-                textContainer.textContent = "End of demo. Thank you for playing!";
-                nextButton.disabled = true;
+                textContainer.innerHTML = "End of demo. Thank you for playing!";
             }
         }
 
-        nextButton.addEventListener('click', () => {
-            if (!isTyping) {
-                displayNextLine();
-            } else {
+        textContainer.addEventListener('click', () => {
+            if (isTyping) {
                 displayFullText();
+            } else {
+                displayNextLine();
             }
         });
 
