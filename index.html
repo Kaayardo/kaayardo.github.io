@@ -57,7 +57,6 @@
         const locationContainer = document.getElementById('location-container');
         const nameContainer = document.getElementById('name-container');
         const textContainer = document.getElementById('text-container');
-        const gameContainer = document.getElementById('game-container');
 
         const script = [
             { type: "chapter", text: "Prologue" },
@@ -74,16 +73,42 @@
             { name: "???", text: "Instead, they just chose to put as many beds as possible. *sigh*." },
             { name: "???", text: "Aesthetics are defaced on a daily basis in this city." },
             { name: "???", text: "*grins* But you have more chances to make friends though!" },
-            // ... (rest of the script)
         ];
 
         let currentLine = 0;
         let isTyping = false;
         let typingSpeed = 30; // milliseconds per character
 
+        let audioContext;
+        let oscillator;
+
+        function initAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playTypeSound() {
+            if (!audioContext) initAudio();
+            
+            oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
         function typeWriter(text, index = 0) {
             if (index < text.length) {
                 textContainer.innerHTML += text.charAt(index);
+                playTypeSound();
                 setTimeout(() => typeWriter(text, index + 1), typingSpeed);
             } else {
                 isTyping = false;
@@ -129,15 +154,34 @@
             }
         }
 
-        textContainer.addEventListener('click', () => {
-            if (isTyping) {
-                displayFullText();
-            } else {
-                displayNextLine();
+        let doubleClickTimer = null;
+        let preventSingleClick = false;
+
+        textContainer.addEventListener('click', (e) => {
+            if (doubleClickTimer == null) {
+                doubleClickTimer = setTimeout(() => {
+                    if (!preventSingleClick) {
+                        if (isTyping) {
+                            displayFullText();
+                        } else {
+                            displayNextLine();
+                        }
+                    }
+                    doubleClickTimer = null;
+                    preventSingleClick = false;
+                }, 300);
             }
         });
 
-        gameContainer.addEventListener('dblclick', displayFullText);
+        textContainer.addEventListener('dblclick', (e) => {
+            clearTimeout(doubleClickTimer);
+            preventSingleClick = true;
+            doubleClickTimer = null;
+            while (currentLine < script.length) {
+                displayFullText();
+                displayNextLine();
+            }
+        });
 
         // Display the first line immediately
         displayNextLine();
