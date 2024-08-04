@@ -5,43 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visual Novel Demo</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-        #game-container {
-            width: 80%;
-            max-width: 800px;
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        #chapter-container, #location-container {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        #name-container {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        #text-container {
-            min-height: 150px;
-            font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+        <style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+    }
+    #game-container {
+        width: 80%;
+        max-width: 800px;
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #chapter-container {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    #location-container {
+        font-size: 16px;
+        font-weight: normal;
+        margin-bottom: 10px;
+        color: #666;
+    }
+    #name-container {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    #text-container {
+        min-height: 150px;
+        font-size: 18px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        padding: 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #f9f9f9;
+    }
+</style>
     </style>
 </head>
 <body>
@@ -51,8 +62,8 @@
         <div id="name-container"></div>
         <div id="text-container"></div>
     </div>
-
     <script>
+<script>
     const chapterContainer = document.getElementById('chapter-container');
     const locationContainer = document.getElementById('location-container');
     const nameContainer = document.getElementById('name-container');
@@ -66,78 +77,106 @@
         { name: "A voice", text: "It's not that bad." },
         { name: "A voice", text: "You know what? It is actually quite cute." },
         { name: "A voice", text: "I almost envy you." },
-        // ... (rest of the script)
+        // Add the rest of your script here
     ];
 
     let currentLine = 0;
     let isTyping = false;
     let typingSpeed = 30; // milliseconds per character
 
-    // Main game logic will go here
+    let audioContext;
 
+    function initAudio() {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function playTypewriterSound() {
+        if (!audioContext) initAudio();
+
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1);
+    }
+
+    function displayText(text) {
+        let index = 0;
+        isTyping = true;
+        
+        function addNextChar() {
+            if (index < text.length && isTyping) {
+                textContainer.textContent += text[index];
+                if (text[index] !== ' ') {
+                    playTypewriterSound();
+                }
+                index++;
+                setTimeout(addNextChar, typingSpeed);
+            } else {
+                isTyping = false;
+            }
+        }
+        
+        addNextChar();
+    }
+
+    function displayFullText() {
+        isTyping = false;
+        const currentItem = script[currentLine - 1];
+        if (currentItem && currentItem.text) {
+            textContainer.textContent = currentItem.text;
+        }
+    }
+
+    function displayNextLine() {
+        if (currentLine < script.length) {
+            const currentItem = script[currentLine];
+            
+            if (currentItem.type === "chapter") {
+                chapterContainer.textContent = currentItem.text;
+                locationContainer.textContent = "";
+                nameContainer.textContent = "";
+                textContainer.textContent = "";
+            } else if (currentItem.type === "location") {
+                locationContainer.textContent = currentItem.text;
+                nameContainer.textContent = "";
+                textContainer.textContent = "";
+            } else {
+                nameContainer.textContent = currentItem.name;
+                textContainer.textContent = "";
+                displayText(currentItem.text);
+            }
+            
+            currentLine++;
+        } else {
+            chapterContainer.textContent = '';
+            locationContainer.textContent = '';
+            nameContainer.textContent = '';
+            textContainer.textContent = "End of demo. Thank you for playing!";
+        }
+    }
+
+    textContainer.addEventListener('click', () => {
+        if (!audioContext) initAudio();
+        if (isTyping) {
+            displayFullText();
+        } else {
+            displayNextLine();
+        }
+    });
+
+    // Start the game
+    displayNextLine();
+</script>
     </script>
 </body>
 </html>
-function displayText(text) {
-    let index = 0;
-    isTyping = true;
-    
-    function addNextChar() {
-        if (index < text.length && isTyping) {
-            textContainer.textContent += text[index];
-            index++;
-            setTimeout(addNextChar, typingSpeed);
-        } else {
-            isTyping = false;
-        }
-    }
-    
-    addNextChar();
-}
-
-function displayFullText() {
-    isTyping = false;
-    const currentItem = script[currentLine - 1];
-    if (currentItem && currentItem.text) {
-        textContainer.textContent = currentItem.text;
-    }
-}
-
-function displayNextLine() {
-    if (currentLine < script.length) {
-        const currentItem = script[currentLine];
-        
-        if (currentItem.type === "chapter") {
-            chapterContainer.textContent = currentItem.text;
-            locationContainer.textContent = "";
-            nameContainer.textContent = "";
-            textContainer.textContent = "";
-        } else if (currentItem.type === "location") {
-            locationContainer.textContent = currentItem.text;
-            nameContainer.textContent = "";
-            textContainer.textContent = "";
-        } else {
-            nameContainer.textContent = currentItem.name;
-            textContainer.textContent = "";
-            displayText(currentItem.text);
-        }
-        
-        currentLine++;
-    } else {
-        chapterContainer.textContent = '';
-        locationContainer.textContent = '';
-        nameContainer.textContent = '';
-        textContainer.textContent = "End of demo. Thank you for playing!";
-    }
-}
-
-textContainer.addEventListener('click', () => {
-    if (isTyping) {
-        displayFullText();
-    } else {
-        displayNextLine();
-    }
-});
-
-// Start the game
-displayNextLine();
